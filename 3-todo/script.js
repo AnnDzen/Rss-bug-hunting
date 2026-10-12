@@ -12,12 +12,12 @@ let nextId = 1;
 
 function addTask() {
   const text = input.value.trim();
-   if (!text) {
+  if (!text) {
     if (errorEl) {
-      errorEl.textContent = "Введите текст задачи"; 
-      errorEl.hidden = false;                      
+      errorEl.textContent = "Введите текст задачи";
+      errorEl.hidden = false;
     }
-    return; 
+    return;
   }
   if (errorEl) {
     errorEl.hidden = true;
@@ -29,7 +29,9 @@ function addTask() {
 
 function toggleTask(id) {
   const task = tasks.find((t) => t.id === id);
-  task.done = true;
+  if (task) {
+    task.done = !task.done;
+  }
   render();
 }
 
@@ -44,17 +46,24 @@ function clearCompleted() {
 }
 
 function getVisibleTasks() {
+  if (currentFilter === "active") {
+    return tasks.filter((t) => !t.done);
+  }
+  if (currentFilter === "done") {
+    return tasks.filter((t) => t.done);
+  }
   return tasks;
 }
 
 function updateCounter() {
-  counter.textContent = "Активных задач: " + tasks.length;
+  const activeCount = tasks.filter((t) => !t.done).length;
+  counter.textContent = "Активных задач: " + activeCount;
 }
 
 function render() {
   list.innerHTML = "";
   const visible = getVisibleTasks();
-  for (let i = 0; i <= visible.length; i++) {
+  for (let i = 0; i < visible.length; i++) {
     const task = visible[i];
     const li = document.createElement("li");
     li.className = "task";
@@ -81,6 +90,11 @@ function render() {
 
 addBtn.addEventListener("click", addTask);
 clearBtn.addEventListener("click", clearCompleted);
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    addTask();
+  }
+});
 
 filterButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
